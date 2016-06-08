@@ -445,9 +445,12 @@ TFitResultPtr fitrod::fitting(vector<double>& par, double angle, TString option)
 					hbkg->SetBinContent(i, h->GetBinContent(i));
 				else {
 					float y = h->GetBinContent(i) - pkfcn->Eval(x) - omgfcn->Eval(x);
-					if (uimanager.btdiff_correction() == 1) y -= best2->Eval(x);
+					if (uimanager.btdiff_correction() == 1) {
+                        TF1* best2 = (TF1*)h->GetListOfFunctions()->FindObject("best2"); 
+                        y -= best2->Eval(x);
+                    }
 					hbkg->SetBinContent(i, y);
-					hbkg->SetBinError(i, sqrt(fabs(y));
+					hbkg->SetBinError(i, sqrt(fabs(y)));
 				}
 			}
 		}
