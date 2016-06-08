@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < uimanager.get_nsigma(); i++) {
 		sigma[i] = uimanager.get_sigma_start() + i*uimanager.get_sigma_step();		
 		for (int j = 0; j < uimanager.output_nbins(); j++){
-			fitting.sethist(h[j], hside[j], mcpeak[i][j], omega[j]);
+			fitting.sethist(h[j], hside[j], mcpeak[i][j], omega[j], NULL);
 			double angle = (uimanager.get_output_angles()[i] + uimanager.get_output_angles()[i + 1]) / 2;
             parameters[j][i][1] = -100;
 			fitting.initialize(parameters[j][i], angle);
