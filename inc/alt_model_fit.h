@@ -145,7 +145,7 @@ class fitrod {
 	vector<vector<double> > init_par;
     vector<TGraph> mean_chi2s;
 
-	TH1F *h, *accidentals, *mcpk, *omega;
+	TH1F *h, *accidentals, *mcpk, *omega, *hbkg;
 private:
 	double find_mean(vector<double> par, double angle);
 public:
@@ -153,7 +153,7 @@ public:
 
     void set_uimanager(const UImanager& _uimanager) { uimanager = _uimanager; }
     void define_par(bool input);
-    void sethist(TH1F* _h, TH1F* _accidentals, TH1F* _mcpk, TH1F *_omega);
+    void sethist(TH1F* _h, TH1F* _accidentals, TH1F* _mcpk, TH1F *_omega, TH1F *_hbkg);
 	void setpar(TF1* fitfcn, fitmethod* fit, vector<double>& par, bool fixed, bool par_initiated, double bw, double angle);
     void setinitpar(vector<vector<double> >& input_par);
 	TFitResultPtr fitting(vector<double>& par, double angle, TString option);

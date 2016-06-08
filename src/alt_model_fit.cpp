@@ -15,11 +15,12 @@ void fitrod::setinitpar(vector<vector<double> >& input_par) {
     init_par = input_par;
 }
 
-void fitrod::sethist(TH1F* _h, TH1F* _accidentals, TH1F* _mcpk, TH1F *_omega) {
+void fitrod::sethist(TH1F* _h, TH1F* _accidentals, TH1F* _mcpk, TH1F *_omega, TH1F *_hbkg) {
 	h = _h;
 	accidentals = _accidentals;
 	mcpk = _mcpk;
 	omega = _omega;
+	hbkg = _hbkg;
 }
 
 void fitrod::initialize(vector<double>& par, double angle) {
@@ -360,7 +361,6 @@ TFitResultPtr fitrod::fitting(vector<double>& par, double angle, TString option)
 	fitfcn -> SetParName(11,"p4");
 	fitfcn -> SetParName(12,"p5");
 	fitfcn -> SetParName(13,"N_{#omega}");
-
     
     bool fixed = false, par_initiated = false;
 	TFitResultPtr r;
@@ -437,6 +437,18 @@ TFitResultPtr fitrod::fitting(vector<double>& par, double angle, TString option)
         
         par[20] = bkg->Integral(uimanager.fit_low_limit(), uimanager.fit_high_limit()) / bw;
         par[21] = omgfcn->Integral(uimanager.fit_low_limit(), uimanager.fit_high_limit()) / bw;
+
+		for (int i = 0; i < mdiv; ++i) {
+			float x = hbkg->GetBinCenter(i);
+			if (x < uimanager.fit_low_limit() + hbkg->GetBinWidth(i) || x > uimanager.fit_high_limit() - hbkg->GetBinWidth(i))
+				hbkg->SetBinContent(i, h->GetBinContent(i));
+			else {
+				float y = h->GetBinContent(i) - pkfcn->Eval(x) - omgfcn->Eval(x);
+				if (uimanager.btdiff_correction() == 1) y -= best2->Eval(x);
+				hbkg->SetBinContent(i, y);
+				hbkg->SetBinError(i, sqrt(fabs(y));
+			}
+		}
 
         if (uimanager.get_method() == 2) {
             TF1 *g1 = new TF1("g1", Form("[0]*%f*(1-[3])/[2]*exp(-0.5*(x-[1])*(x-[1])/[2]/[2])", bw / sqrt(2 * 3.14159265359)), uimanager.get_hist_limits()[0], uimanager.get_hist_limits()[1]);

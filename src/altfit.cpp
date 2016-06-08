@@ -17,7 +17,8 @@ int main(int argc, char* argv[]) //input in this program only refers to the inpu
 	if (!inroot->IsOpen()) exit(open_err(string(inrootdir + "rotatedmass" + uimanager.output_filename("data") + ".root")));
     cout << "use " << inrootdir + "rotatedmass" + uimanager.output_filename("data") + ".root" << endl;
 
-	vector<TH1F*> h(uimanager.output_nbins(), NULL), hside(uimanager.output_nbins(), NULL), omega(uimanager.output_nbins(), NULL), mcpeak(uimanager.output_nbins(), NULL);
+	vector<TH1F*> h(uimanager.output_nbins(), NULL), hside(uimanager.output_nbins(), NULL), omega(uimanager.output_nbins(), NULL), mcpeak(uimanager.output_nbins(), NULL),
+	hbkg(uimanager.output_nbins(), NULL);
 
 	TVectorD *ratios = (TVectorD*)inroot->Get("ratios");
 	for (int i = 0; i<uimanager.output_nbins(); i++){
@@ -40,6 +41,10 @@ int main(int argc, char* argv[]) //input in this program only refers to the inpu
 		omega[i]->SetDirectory(0);
 	}
 	inroot->Close();
+	
+	for (int i = 0; i < uimanager.output_nbins(); ++i) {
+		hbkg[i] = new TH1F(Form("hbkg_%d"), Form("hbkg_%d"), mdiv, -0.2, 0.2);
+	}
 
 	//load peak fitting model from M.C. if using M.C. to fit rotated mass distribution
 	if (uimanager.get_method() == 1) {
@@ -111,7 +116,7 @@ int main(int argc, char* argv[]) //input in this program only refers to the inpu
 		angle = (uimanager.get_output_angles()[i] + uimanager.get_output_angles()[i + 1]) / 2;
 		index_angle = i + 1;
 
-		fitting.sethist(h[i], hside[i], mcpeak[i], omega[i]);
+		fitting.sethist(h[i], hside[i], mcpeak[i], omega[i], hbkg[i]);
         if (uimanager.get_method() == 1) parameters[1] = -100.;
 		fitting.initialize(parameters, angle);
 		TFitResultPtr r = fitting.fitting(parameters, angle, "Q");
@@ -137,7 +142,10 @@ int main(int argc, char* argv[]) //input in this program only refers to the inpu
 
 	outroot->cd();
 	fitresult->Write();
-	for (int i = 0; i < uimanager.output_nbins(); ++i) h[i]->Write();
+	for (int i = 0; i < uimanager.output_nbins(); ++i) {
+		h[i]->Write();
+		hbkg[i]->Write();
+	}
 	outroot->Close();
 
     if (uimanager.get_method() == 1) fitting.make_plot();
