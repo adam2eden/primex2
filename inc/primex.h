@@ -113,9 +113,9 @@ public:
 
 	int fitting_method() { return _method; }
 	bool subtract_acc() { return _subacc; }
+	bool ismc() { return _mc; }
 	bool isouter() { return _outer; }
     bool best_tdiff() { return _best_tdiff; }
-    bool ismc() { return _mc; }
     bool use_Npi0() { return _use_Npi0; }
 
 	double flux() { return _flux; }

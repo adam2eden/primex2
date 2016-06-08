@@ -126,9 +126,6 @@ plotalt.o: plotalt.cpp
 btcorr.o: btcorr.cpp
 	$(CXX) $(CXXFLAGS) -c btcorr.cpp
 
-clean:
-	rm -f *.o *.d $(bin)/*
-
 ###
 .SUFFIXES:
 .SUFFIXES: .c .cc .cpp .C .o .d

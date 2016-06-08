@@ -14,9 +14,9 @@ const vector<double> bit_corr = { 0.9885, 0.98569 };
 const vector<double> tgt_lumi = { 0.04973456e-3, 0.17700914e-3 };
 
 UImanager::UImanager(int argc, char* argv[], string prog)
-:_nsigma(31), _method(1), _mc(0), _num_runs(0), _outer(0), _btc(0), _use_poly_bkg(1), _sub_omg(1),
+:_nsigma(31), _method(1), _mc(0), _num_runs(0), _outer(1), _btc(1), _use_poly_bkg(1), _sub_omg(1),
 _sigma_start(0.85), _sigma_step(0.01), _lelas(1.15), _tsi(tsi[target()]), _ta_corr(ta_corr[target()]), _adcerr(0.995), _bit_corr(bit_corr[target()]), _br_corr(1. - 1.2e-2), _tgt_lumi(tgt_lumi[target()]), _flux(0), _flux_omega(0), _flux_mc(0), _xmin(-0.1), _xmax(0.1), _tdiff_cut(6.),
-_subacc(false), _best_tdiff(false), _use_Npi0(false), prog(prog)
+_subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
 {
 	_limits = { -0.2, 0.2 };
 	_elas = { -100, 100 };
@@ -46,6 +46,8 @@ _subacc(false), _best_tdiff(false), _use_Npi0(false), prog(prog)
 
     _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-f"    ), true) );
     _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-r"    ), true) );
+    _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-t"    ), true) );
+    _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-mc"   ), true) );
     _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-wo"   ), true) );
     _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-out"  ), true) );
     _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-elas" ), true) );
@@ -220,6 +222,10 @@ _subacc(false), _best_tdiff(false), _use_Npi0(false), prog(prog)
 			else if (string(argv[iarg++]) == "coarse") _input_angles = angles[target()];
 			else exit(input_err());
 		}
+		else if (input_option(argv[iarg], "-mc")) {
+			iarg++;
+			_mc = 1;
+		}
 		else if (input_option(argv[iarg], "-wo")) {
 			iarg++;
 			_outer = 1;
@@ -345,10 +351,12 @@ void UImanager::help() {
                 "                         coarse |  21     |    14  " << endl <<
                 "                         _______|_________|________" << endl <<
                 "                         fine   | 125     |   125  " << endl;
+    if (input_option("-mc", "-mc"))
+        cout << "-mc                      Prepare realistic mc rotated mass"  << endl << endl;
     if (input_option("-wo", "-wo"))
         cout << "-wo                      Use transitional region"  << endl << endl;
 	if (input_option("-btc", "-btc"))
-		cout << "-btc (0|1|2)               Subtract 2nd best tdiff"  << endl << endl;
+		cout << "-btc (0|1|2)             Subtract 2nd best tdiff"  << endl << endl;
     if (input_option("-acc", "-acc"))
         cout << "-acc                     Subtract accidentals using side bands"  << endl << endl;
     if (input_option("-out", "-out"))

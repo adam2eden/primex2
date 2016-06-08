@@ -13,9 +13,8 @@ int main(int argc, char* argv[]) //input in this program only refers to the inpu
 	TString inrootdir("./fitroot/");
 
 	//load input root file with rotated mass histograms and sidebands
-	TFile *inroot = new TFile(inrootdir + "rotatedmass" + uimanager.output_filename("data") + ".root");
-	if (!inroot->IsOpen()) exit(open_err(string(inrootdir + "rotatedmass" + uimanager.output_filename("data") + ".root")));
-    cout << "use " << inrootdir + "rotatedmass" + uimanager.output_filename("data") + ".root" << endl;
+	TFile *inroot;
+    inroot = new TFile(inrootdir + "rotatedmass" + uimanager.output_filename("data") + ".root");
 
 	vector<TH1F*> h(uimanager.output_nbins(), NULL), hside(uimanager.output_nbins(), NULL), omega(uimanager.output_nbins(), NULL), mcpeak(uimanager.output_nbins(), NULL),
 	hbkg(uimanager.output_nbins(), NULL);

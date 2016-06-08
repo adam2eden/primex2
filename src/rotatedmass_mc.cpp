@@ -53,23 +53,58 @@ int main (int argc, char* argv[]) {
 
 	for (int i = 0; i < int(uimanager.get_runs().size()); i++) event->Add(Form("./mc/ge%d.cout.root", uimanager.get_runs()[i]));
 
-    TString outrootname("fitmodel_mc" + uimanager.output_filename("mc") + ".root");
+    TString outrootname("fitmodel_mc" + uimanager.output_filename("mc") + ".root"), inrootname;
+    if(uimanager.ismc()) {
+        outrootname = "rotatedmass" + uimanager.output_filename("mc") + ".root";
+        inrootname = "altfit" + uimanager.output_filename("fit") + ".root";
+    }
     TFile* outroot = new TFile(outrootname, "RECREATE");
 
 	vector<vector<TH1F*> > haltinvm(uimanager.output_nbins(), vector<TH1F*>(uimanager.get_nsigma(), NULL));
-    vector<TH1F*> haltinvm_mc(uimanager.output_nbins(), NULL);
+    vector<TH1F*> haltinvm_mc(uimanager.output_nbins(), NULL), hbkg(uimanager.output_nbins(), NULL);
 	TH1F *hinvm, *helas;
 
-    int nbins = 400;
-	if (uimanager.get_runs().size() > 10)nbins = 4000;
+    int nbins = mdiv;
+	if (uimanager.get_runs().size() > 10)nbins = 40*nbins;
 	for (int i = 0; i < uimanager.output_nbins(); i++) {
-			haltinvm_mc[i] = new TH1F(Form("haltinvm_mc_%d", i), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f]", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1]), nbins, -0.2, 0.2);
+			haltinvm_mc[i] = new TH1F(Form("hrotd_%d", i), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f]", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1]), nbins, -0.2, 0.2);
 		for (int j = 0; j < uimanager.get_nsigma(); j++) {
 			haltinvm[i][j] = new TH1F(Form("haltinvm_%d_%.2f", i, uimanager.get_sigma_start() + j*uimanager.get_sigma_step()), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f] sigma_adj: %.2f", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1], uimanager.get_sigma_start() + j*uimanager.get_sigma_step()), nbins, -0.2, 0.2);
         }
 	}
-	hinvm = new TH1F("hinvm", "hinvm", nbins, 0, 0);
-	helas = new TH1F("helas", "helas", nbins, 0, 0);
+	hinvm = new TH1F("hinvm", "hinvm", 4*nbins, 0, 0);
+	helas = new TH1F("helas", "helas", 4*nbins, 0, 0);
+
+    TFile* inroot;
+    vector<float> npi(uimanager.output_nbins(), 0);
+    if(uimanager.ismc()) {
+        inroot = new TFile(inrootname);
+        if(!inroot->IsOpen()) {
+            cout << "couldn't find " << inrootname << endl;
+            exit(1);
+        }
+        for(int i = 0; i < uimanager.output_nbins(); i++) hbkg[i] = (TH1F*)inroot->Get(Form("hbkg_%d", i));
+
+        TTree *fitresult = (TTree*)inroot->Get("fitresult");
+
+        const int kMax = 22;
+        int npar, NDF, Npfits, index_angle;
+        double angles, parameters[kMax], errors[kMax], chi2, Npi0, Npi0_err;
+
+        fitresult->SetBranchAddress("index_angle",&index_angle);
+        fitresult->SetBranchAddress("npar",&npar);
+        fitresult->SetBranchAddress("angles",&angles);
+        fitresult->SetBranchAddress("parameters",parameters);
+        fitresult->SetBranchAddress("Npi0",&Npi0);
+        fitresult->SetBranchAddress("Npi0_err",&Npi0_err);
+        fitresult->SetBranchAddress("errors",errors);
+        fitresult->SetBranchAddress("chi2",&chi2);
+
+        for(int i = 0; i < fitresult->GetEntries(); ++i) {
+            fitresult->GetEntry(i);
+            npi[i] = parameters[0];
+        }
+    }
 
 	float costheta = 0.70710678118;
 	float sintheta = 0.70710678118;
@@ -77,10 +112,11 @@ int main (int argc, char* argv[]) {
     
 	ifstream input("fitmodel.dat");
     int nevents = event->GetEntries();
+    cout << nevents << endl;
 	if (!input.is_open()) {
 		cout << "------------------- can't find fitmodel.dat with peak center --------------------" << endl;
         cout << "--------------------------- start seeking peak center ---------------------------" << endl;
-		if (uimanager.get_runs().size() > 1) {
+		if (uimanager.get_runs().size() >= 1) {
             for(int i=1;i<=nevents;i++){
                 event->GetEntry(i);
                 for(int j=0;j<npi0;j++){
@@ -199,16 +235,10 @@ int main (int argc, char* argv[]) {
 
                 if(elas < uimanager.elas_low_cut() || elas > uimanager.elas_high_cut()) continue;
 
-				int cc = 0, cc1 = 0;
+				int cc = 0;
                 for(int m = 0; m < uimanager.output_nbins(); m++) {
 					if (uimanager.get_output_angles()[m] < angle[j] && angle[j] <= uimanager.get_output_angles()[m + 1]) {
                         cc = m;
-                        break;
-                    }
-                }
-                for(int m = 0; m < uimanager.output_nbins(); m++) {
-					if (uimanager.get_output_angles()[m] < MC_angle && MC_angle <= uimanager.get_output_angles()[m + 1]) {
-                        cc1 = m;
                         break;
                     }
                 }
@@ -223,11 +253,11 @@ int main (int argc, char* argv[]) {
 					for (int m = 0; m < uimanager.get_nsigma(); m++) {
 					    if (!isouterlayer) {
                             haltinvm[cc][m]->Fill((cinvm*costheta-elas*sintheta)*(uimanager.get_sigma_start()+m*uimanager.get_sigma_step()));
-                            if (0 <= cc1 && cc1 < uimanager.output_nbins() && MC_angle <= max_angle) haltinvm_mc[cc1]->Fill(cinvm*costheta-elas*sintheta);
+                            if(m == 0) haltinvm_mc[cc]->Fill(cinvm*costheta-elas*sintheta);
                         }
                         else if (uimanager.isouter()) {
                             haltinvm[cc][m]->Fill((cinvm*costheta-elas*sintheta)*(uimanager.get_sigma_start()+m*uimanager.get_sigma_step()));
-                            if (0 <= cc1 && cc1 < uimanager.output_nbins() && MC_angle <= max_angle) haltinvm_mc[cc1]->Fill(cinvm*costheta-elas*sintheta);
+                            if(m == 0) haltinvm_mc[cc]->Fill(cinvm*costheta-elas*sintheta);
                         }
 					}
                     rotdm = cinvm*costheta-elas*sintheta;
@@ -244,10 +274,16 @@ int main (int argc, char* argv[]) {
 
     outroot->cd();
 	for (int i = 0; i< uimanager.output_nbins(); i++) {
-		for (int j = 0; j < uimanager.get_nsigma(); j++) {
-			haltinvm[i][j]->Write();
-		}
-        haltinvm_mc[i]->Write();
+        if(!uimanager.ismc()) {
+            for (int j = 0; j < uimanager.get_nsigma(); j++) {
+                haltinvm[i][j]->Write();
+            }
+        }
+        else {
+            hbkg[i]->Scale(haltinvm_mc[i]->GetEntries()/npi[i]);
+            haltinvm_mc[i]->Add(hbkg[i], 1);
+            haltinvm_mc[i]->Write();
+        }
     }
     hinvm->Write();
     helas->Write();
