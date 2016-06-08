@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) //input in this program only refers to the inpu
 	inroot->Close();
 	
 	for (int i = 0; i < uimanager.output_nbins(); ++i) {
-		hbkg[i] = new TH1F(Form("hbkg_%d"), Form("hbkg_%d"), mdiv, -0.2, 0.2);
+		hbkg[i] = new TH1F(Form("hbkg_%d", i), Form("hbkg_%d", i), mdiv, -0.2, 0.2);
 	}
 
 	//load peak fitting model from M.C. if using M.C. to fit rotated mass distribution

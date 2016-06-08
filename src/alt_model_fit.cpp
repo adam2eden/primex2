@@ -441,14 +441,12 @@ TFitResultPtr fitrod::fitting(vector<double>& par, double angle, TString option)
 		if (hbkg) {
 			for (int i = 0; i < mdiv; ++i) {
 				float x = hbkg->GetBinCenter(i);
-				if (x < uimanager.fit_low_limit() + hbkg->GetBinWidth(i) || x > uimanager.fit_high_limit() - hbkg->GetBinWidth(i))
+				if (x < uimanager.fit_low_limit() + hbkg->GetBinWidth(i) || x > uimanager.fit_high_limit() - hbkg->GetBinWidth(i)) {
 					hbkg->SetBinContent(i, h->GetBinContent(i));
+					hbkg->SetBinError(i, sqrt(h->GetBinContent(i)));
+                }
 				else {
-					float y = h->GetBinContent(i) - pkfcn->Eval(x) - omgfcn->Eval(x);
-					if (uimanager.btdiff_correction() == 1) {
-                        TF1* best2 = (TF1*)h->GetListOfFunctions()->FindObject("best2"); 
-                        y -= best2->Eval(x);
-                    }
+					float y = h->GetBinContent(i) - pkfcn->Eval(x);
 					hbkg->SetBinContent(i, y);
 					hbkg->SetBinError(i, sqrt(fabs(y)));
 				}

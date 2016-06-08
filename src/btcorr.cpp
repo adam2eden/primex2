@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     parameters1[16] = 0;
     parameters1[17] = 0.08;
 
-	fitting.sethist(hrotdbest2, hsidebest, hrotdbest, omega);
+	fitting.sethist(hrotdbest2, hsidebest, hrotdbest, omega, NULL);
 	fitting.fitting(parameters1, 0., "");
     
     for (int i = 1; i < 12; ++i) parameters1[i] = parameters[i];
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
     parameters1[16] = 0;
     parameters1[17] = 0.08;
 
-	fitting.sethist(hrotdbest3, hsidebest, hrotdbest, omega);
+	fitting.sethist(hrotdbest3, hsidebest, hrotdbest, omega, NULL);
 	fitting.fitting(parameters1, 0., "");
 
     ofstream output("btcorr.dat");
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
         fitting.set_uimanager(uimanager);
         fitting.define_par(0);
 
-        fitting.sethist(hrotdbest_bin[i], hsidebest, hrotdbest, omega_bin[i]);
+        fitting.sethist(hrotdbest_bin[i], hsidebest, hrotdbest, omega_bin[i], NULL);
         fitting.initialize(parameters, 0.);
         r = fitting.fitting(parameters, 0., "");
         
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
         parameters1[16] = 0;
         parameters1[17] = 0.08;
 
-        fitting.sethist(hrotdbest2_bin[i], hsidebest, hrotdbest, omega_bin[i]);
+        fitting.sethist(hrotdbest2_bin[i], hsidebest, hrotdbest, omega_bin[i], NULL);
         fitting.fitting(parameters1, 0., "");
 
         TF1 bkg("bkg", Form("[0]*%f*([3]/[2]*exp(-(x-[1])*(x-[1])/2/[2]/[2])+(1-[3])/[5]*exp(-(x-[1]-[4])*(x-[1]-[4])/2/[5]/[5]))", 1/sqrt(2*3.14159265359)), uimanager.get_hist_limits()[0], uimanager.get_hist_limits()[1]);
