@@ -55,13 +55,13 @@ int main (int argc, char* argv[]) {
 
     TString outrootname("fitmodel_mc" + uimanager.output_filename("mc") + ".root"), inrootname;
     if(uimanager.ismc()) {
-        outrootname = "rotatedmass" + uimanager.output_filename("mc") + ".root";
-        inrootname = "altfit" + uimanager.output_filename("fit") + ".root";
+        outrootname = "rotatedmass" + uimanager.output_filename("data") + ".root";
+        inrootname = "fitroot/altfit" + uimanager.output_filename("fit") + ".root";
     }
     TFile* outroot = new TFile(outrootname, "RECREATE");
 
 	vector<vector<TH1F*> > haltinvm(uimanager.output_nbins(), vector<TH1F*>(uimanager.get_nsigma(), NULL));
-    vector<TH1F*> haltinvm_mc(uimanager.output_nbins(), NULL), hbkg(uimanager.output_nbins(), NULL);
+    vector<TH1F*> haltinvm_mc(uimanager.output_nbins(), NULL), hbkg(uimanager.output_nbins(), NULL), hside(uimanager.output_nbins(), NULL);
 	TH1F *hinvm, *helas;
 
     int nbins = mdiv;
@@ -272,7 +272,21 @@ int main (int argc, char* argv[]) {
     rotd->Write();
     dataroot->Close();
 
+    TFile f("fitroot/" + outrootname);
+    if(!f.IsOpen()) exit(open_err(outrootname));
+    TVectorD* ratios = (TVectorD*)f.Get("ratios");
+    vector<double> vec = {(*ratios)[0], (*ratios)[1]};
+    for(int i = 0; i < uimanager.output_nbins(); ++i) {
+        hside[i] = (TH1F*)f.Get(Form("hside_%d", i));
+        hside[i]->SetDirectory(0);
+    }
+    f.Close();
+
     outroot->cd();
+    TVectorD ratios1(2);
+    ratios1[0] = vec[0];
+    ratios1[1] = vec[1];
+    ratios1.Write("ratios");
 	for (int i = 0; i< uimanager.output_nbins(); i++) {
         if(!uimanager.ismc()) {
             for (int j = 0; j < uimanager.get_nsigma(); j++) {
@@ -283,6 +297,7 @@ int main (int argc, char* argv[]) {
             hbkg[i]->Scale(haltinvm_mc[i]->GetEntries()/npi[i]);
             haltinvm_mc[i]->Add(hbkg[i], 1);
             haltinvm_mc[i]->Write();
+            hside[i]->Write();
         }
     }
     hinvm->Write();

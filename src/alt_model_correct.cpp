@@ -18,6 +18,7 @@ int main(int argc, char* argv[])
 	vector<vector<TH1F*> > mcpeak(uimanager.get_nsigma(), vector<TH1F*>(uimanager.output_nbins(), NULL));
 
 	TVectorD *ratios = (TVectorD*)inroot->Get("ratios");
+
 	for (int i = 0; i < uimanager.output_nbins(); i++){
 		TString hname(Form("hrotd_%d", i));
 		h[i] = (TH1F*)inroot->Get(hname);
@@ -29,6 +30,7 @@ int main(int argc, char* argv[])
 	inroot->Close();
 	//load omega bkg from M.C.
 	inroot = new TFile(inrootdir + "rotatedmass" + uimanager.output_filename("omega") + ".root");
+	if (!inroot->IsOpen()) exit(open_err(inrootdir + "rotatedmass" + uimanager.output_filename("omega") + ".root"));
 
 	for (int i = 0; i < uimanager.output_nbins(); i++){
 		omega[i] = (TH1F*)inroot->Get(Form("homg_%d", i));
