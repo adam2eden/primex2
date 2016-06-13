@@ -5,17 +5,16 @@ vector<vector<double> > angles{ { 0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.
 
 vector<vector<double> > btcorr_angles{ {0., 0.5, 1.0, 1.5, 2.5}, {0., 0.5, 1.0, 1.5, 2.5} };
 
-const vector<double> flux_target = { 5.3034887516e12, 2.4482987753e12 };
+const vector<vector<double>> flux_target = {{ 5.3034887516e12, 2.4482987753e12 }, { 5.3e12, 2.4e12 }};
 const vector<double> flux_omega_target = { 410.1e12, 263.0e12 };
-const vector<double> flux_mc_target = { 5.3e12, 2.4e12 };
 const vector<double> tsi = { 0.04973456e-6, 0.17700914e-6 };
-const vector<double> ta_corr = { 0.960488*1.00187, 0.970*1.0365 };
+const vector<vector<double>> ta_corr = {{ 0.960488*1.00187, 0.970*1.0365 }, {1, 1}};
 const vector<double> bit_corr = { 0.9885, 0.98569 };
 const vector<double> tgt_lumi = { 0.04973456e-3, 0.17700914e-3 };
 
 UImanager::UImanager(int argc, char* argv[], string prog)
 :_nsigma(31), _method(1), _mc(0), _num_runs(0), _outer(1), _btc(1), _use_poly_bkg(1), _sub_omg(1),
-_sigma_start(0.85), _sigma_step(0.01), _lelas(1.15), _tsi(tsi[target()]), _ta_corr(ta_corr[target()]), _adcerr(0.995), _bit_corr(bit_corr[target()]), _br_corr(1. - 1.2e-2), _tgt_lumi(tgt_lumi[target()]), _flux(0), _flux_omega(0), _flux_mc(0), _xmin(-0.1), _xmax(0.1), _tdiff_cut(6.),
+_sigma_start(0.85), _sigma_step(0.01), _lelas(1.15), _tsi(tsi[target()]), _ta_corr(ta_corr[target()]), _adcerr(0.995), _bit_corr(bit_corr[target()]), _br_corr(1. - 1.2e-2), _tgt_lumi(tgt_lumi[target()]), _flux(0), _flux_omega(0), _xmin(-0.1), _xmax(0.1), _tdiff_cut(6.),
 _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
 {
 	_limits = { -0.2, 0.2 };
@@ -89,7 +88,7 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
     _input_option_list.insert( make_pair( make_pair("alt_model_correct",        "-wo"   ), true) );
     _input_option_list.insert( make_pair( make_pair("alt_model_correct",        "-acc"  ), true) );
     _input_option_list.insert( make_pair( make_pair("alt_model_correct",        "-btc"  ), true) );
-	_input_option_list.insert( make_pair( make_pair("alt_model_corrret",		"-btc"  ), true) );
+	_input_option_list.insert( make_pair( make_pair("alt_model_corrret",        "-btc"  ), true) );
     _input_option_list.insert( make_pair( make_pair("alt_model_correct",        "-out"  ), true) );
     _input_option_list.insert( make_pair( make_pair("alt_model_correct",        "-elas" ), true) );
     _input_option_list.insert( make_pair( make_pair("alt_model_correct",        "-invm" ), true) );
@@ -104,7 +103,7 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
     _input_option_list.insert( make_pair( make_pair("altfit",                   "-in"   ), true) );
     _input_option_list.insert( make_pair( make_pair("altfit",                   "-wo"   ), true) );
     _input_option_list.insert( make_pair( make_pair("altfit",                   "-acc"  ), true) );
-	_input_option_list.insert( make_pair( make_pair("altfit",					"-btc"	), true) );
+	_input_option_list.insert( make_pair( make_pair("altfit",                   "-btc"  ), true) );
     _input_option_list.insert( make_pair( make_pair("altfit",                   "-out"  ), true) );
     _input_option_list.insert( make_pair( make_pair("altfit",                   "-elas" ), true) );       
     _input_option_list.insert( make_pair( make_pair("altfit",                   "-invm" ), true) );       
@@ -117,9 +116,10 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
     _input_option_list.insert( make_pair( make_pair("plotalt",                  "-r"    ), true) );
     _input_option_list.insert( make_pair( make_pair("plotalt",                  "-t"    ), true) );
     _input_option_list.insert( make_pair( make_pair("plotalt",                  "-in"   ), true) );
+	_input_option_list.insert( make_pair( make_pair("plotalt",                  "-mc"   ), true) );
     _input_option_list.insert( make_pair( make_pair("plotalt",                  "-wo"   ), true) );
     _input_option_list.insert( make_pair( make_pair("plotalt",                  "-acc"  ), true) );
-	_input_option_list.insert( make_pair( make_pair("plotalt",					"-btc"	), true) );
+	_input_option_list.insert( make_pair( make_pair("plotalt",                  "-btc"  ), true) );
     _input_option_list.insert( make_pair( make_pair("plotalt",                  "-elas" ), true) );       
     _input_option_list.insert( make_pair( make_pair("plotalt",                  "-invm" ), true) );       
     _input_option_list.insert( make_pair( make_pair("plotalt",                  "-npi0" ), true) );       
@@ -132,9 +132,10 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
     _input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-r"    ), true) );
     _input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-t"    ), true) );
     _input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-in"   ), true) );
+	_input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-mc"   ), true) );
     _input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-wo"   ), true) );
     _input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-acc"  ), true) );
-	_input_option_list.insert( make_pair( make_pair("dndt_fit",					"-btc"	), true) );
+	_input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-btc"  ), true) );
     _input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-elas" ), true) ); 
     _input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-invm" ), true) ); 
     _input_option_list.insert( make_pair( make_pair("dndt_fit",                 "-lelas"), true) ); 
@@ -301,11 +302,8 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
     if (!_input_angles.size()) _input_angles = angles[target()];
 	if (!_output_angles.size()) _output_angles = angles[target()];
 
-	if (!_flux) _flux = flux_target[target()];
+	if (!_flux) _flux = flux_target[_mc][target()];
 	if (!_flux_omega)_flux_omega = flux_omega_target[target()];
-	if (!_flux_mc) _flux_mc = flux_mc_target[target()];
-
-
 }
 
 bool UImanager::input_option(char* arg, string opt) {

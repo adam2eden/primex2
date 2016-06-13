@@ -52,7 +52,7 @@ const int nregion = 2, mdiv = 100;
 class UImanager {
 	int _nsigma, _method, _mc, _num_runs, _outer, _btc, _use_poly_bkg, _sub_omg;
 
-	double _sigma_start, _sigma_step, _lelas, _tsi, _ta_corr, _adcerr, _bit_corr,  _br_corr, _tgt_lumi, _flux, _flux_omega, _flux_mc, _xmin, _xmax, _tdiff_cut;
+	double _sigma_start, _sigma_step, _lelas, _tsi, _ta_corr, _adcerr, _bit_corr,  _br_corr, _tgt_lumi, _flux, _flux_omega, _xmin, _xmax, _tdiff_cut;
 	bool _subacc, _best_tdiff, _use_Npi0;
     string prog;
 
