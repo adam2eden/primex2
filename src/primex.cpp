@@ -14,7 +14,7 @@ const vector<double> tgt_lumi = { 0.04973456e-3, 0.17700914e-3 };
 
 UImanager::UImanager(int argc, char* argv[], string prog)
 :_nsigma(31), _method(1), _mc(0), _num_runs(0), _outer(1), _btc(1), _use_poly_bkg(1), _sub_omg(1),
-_sigma_start(0.85), _sigma_step(0.01), _lelas(1.15), _tsi(tsi[target()]), _ta_corr(ta_corr[target()]), _adcerr(0.995), _bit_corr(bit_corr[target()]), _br_corr(1. - 1.2e-2), _tgt_lumi(tgt_lumi[target()]), _flux(0), _flux_omega(0), _xmin(-0.1), _xmax(0.1), _tdiff_cut(6.),
+_sigma_start(0.85), _sigma_step(0.01), _lelas(1.15), _tsi(tsi[target()]), _adcerr(0.995), _bit_corr(bit_corr[target()]), _br_corr(1. - 1.2e-2), _tgt_lumi(tgt_lumi[target()]), _flux(0), _flux_omega(0), _xmin(-0.1), _xmax(0.1), _tdiff_cut(6.),
 _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
 {
 	_limits = { -0.2, 0.2 };
@@ -296,6 +296,8 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
 			exit(1);
 		}
 	}
+    
+    _ta_corr = ta_corr[_mc][target()]; 
 
 	if (_output_angles.size() < _input_angles.size()) _output_angles = _input_angles;
 	
