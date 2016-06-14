@@ -287,6 +287,8 @@ int main (int argc, char* argv[]) {
     ratios1[0] = vec[0];
     ratios1[1] = vec[1];
     ratios1.Write("ratios");
+	
+	ofstream output_mc("Npi0_mc.dat");
 	for (int i = 0; i< uimanager.output_nbins(); i++) {
         if(!uimanager.ismc()) {
             for (int j = 0; j < uimanager.get_nsigma(); j++) {
@@ -295,11 +297,13 @@ int main (int argc, char* argv[]) {
         }
         else {
             hbkg[i]->Scale(haltinvm_mc[i]->GetEntries()/npi[i]);
+			output_mc << hbkg[i]->GetEntries() << endl;
             haltinvm_mc[i]->Add(hbkg[i], 1);
             haltinvm_mc[i]->Write();
             hside[i]->Write();
         }
     }
+	output_mc.close();
     hinvm->Write();
     helas->Write();
 
