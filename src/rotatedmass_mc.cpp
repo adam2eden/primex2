@@ -67,7 +67,7 @@ int main (int argc, char* argv[]) {
     int nbins = mdiv;
 	if (uimanager.get_runs().size() > 10)nbins = 40*nbins;
 	for (int i = 0; i < uimanager.output_nbins(); i++) {
-			haltinvm_mc[i] = new TH1F(Form("hrotd_%d", i), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f]", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1]), nbins, -0.2, 0.2);
+        haltinvm_mc[i] = new TH1F(Form("hrotd_%d", i), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f]", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1]), nbins, -0.2, 0.2);
 		for (int j = 0; j < uimanager.get_nsigma(); j++) {
 			haltinvm[i][j] = new TH1F(Form("haltinvm_%d_%.2f", i, uimanager.get_sigma_start() + j*uimanager.get_sigma_step()), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f] sigma_adj: %.2f", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1], uimanager.get_sigma_start() + j*uimanager.get_sigma_step()), nbins, -0.2, 0.2);
         }

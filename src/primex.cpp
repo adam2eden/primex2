@@ -8,7 +8,7 @@ vector<vector<double> > btcorr_angles{ {0., 0.5, 1.0, 1.5, 2.5}, {0., 0.5, 1.0, 
 const vector<vector<double>> flux_target = {{ 5.3034887516e12, 2.4482987753e12 }, { 5.3e12, 2.4e12 }};
 const vector<double> flux_omega_target = { 410.1e12, 263.0e12 };
 const vector<double> tsi = { 0.04973456e-6, 0.17700914e-6 };
-const vector<vector<double>> ta_corr = {{ 0.960488*1.00187, 0.970*1.0365 }, {1, 1}};
+const vector<double> ta_corr = { 0.960488*1.00187, 0.970*1.0365 };
 const vector<double> bit_corr = { 0.9885, 0.98569 };
 const vector<double> tgt_lumi = { 0.04973456e-3, 0.17700914e-3 };
 
@@ -297,7 +297,7 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
 		}
 	}
     
-    _ta_corr = ta_corr[_mc][target()]; 
+    _ta_corr = ta_corr[target()]; 
 
 	if (_output_angles.size() < _input_angles.size()) _output_angles = _input_angles;
 	

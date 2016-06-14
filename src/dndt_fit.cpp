@@ -25,8 +25,8 @@ int main(int argc, char* argv[]){
 //***************************set constant ****************************************
     Double_t acdntl_corr = 1., respf_corr = 1.;
 	Double_t eff_corr = uimanager.get_adcerr() * uimanager.get_br_corr() * uimanager.get_ta_corr() * acdntl_corr * respf_corr;//	adcerr x tdiff_cut_eff x veto_eff x pi0 decay products abs. (set to 1, since included in current rmat) x bkg_in_fit (not in current rmat)
-    if (uimanager.ismc()) eff_corr = uimanager.get_ta_corr();
     if(uimanager.best_tdiff()) eff_corr *= uimanager.get_bit_corr();
+    if(uimanager.ismc()) eff_corr = uimanager.get_ta_corr(); 
 
 	Double_t f_l = uimanager.flux() * uimanager.get_tgt_lumi() * eff_corr;
 
