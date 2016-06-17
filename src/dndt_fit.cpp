@@ -28,6 +28,7 @@ int main(int argc, char* argv[]){
     if(uimanager.best_tdiff()) eff_corr *= uimanager.get_bit_corr();
     if(uimanager.ismc()) eff_corr = uimanager.get_ta_corr(); 
 
+    cout << eff_corr << " " << uimanager.flux() << " " << uimanager.get_tgt_lumi() << endl;
 	Double_t f_l = uimanager.flux() * uimanager.get_tgt_lumi() * eff_corr;
 
 //************ start reading files *******************************
@@ -40,20 +41,6 @@ int main(int argc, char* argv[]){
 		exit(1);
  	}
 	for(int i=0;i<180;i++)eflux>>flw[i];
-//get fitting correction factor
-    float effcor[nangle], err[nangle];
-    ifstream feffcor;
-	bool mc_corr = false;
-	if (!uimanager.target()) feffcor.open(workdir+"tables/effcor.dat");
-    else feffcor.open(workdir+"tables/effcor_c12.dat");	
-	if (feffcor.is_open()) {
-		cout << "MC correction exist" << endl;
-		mc_corr = true;
-		for(int i=0;i<nangle;i++)
-			feffcor>>effcor[i]>>err[i];
-	} else {
-        cout << "fitting w/o M.C. correction" << endl;
-    }
 //get efficiency table
     TString dfp;
     if (!uimanager.target()) dfp = Form("dfp%d", int(uimanager.isouter())) + uimanager.input_filename("mc") + "_si.dat";
@@ -86,7 +73,6 @@ int main(int argc, char* argv[]){
 		for(int j = 0;j < nangle;j++)
 			for(int k = 0;k < 5;k++){
 				Double_t f_l_j=f_l;
-				if (mc_corr && j < nangle) f_l_j *= effcor[j];
 				int ic = 0;
 				int jc = 0;
 				int kc = 0;
@@ -221,18 +207,6 @@ int main(int argc, char* argv[]){
 
 	TCanvas *c1 = new TCanvas("c1","c1",1600,1200);
 	c1->SaveAs(outfilename+".pdf[");
-	if (mc_corr) {
-		TGraphErrors *g1 = new TGraphErrors(fit_nangle,angles,effcor,ex,err);
-		g1->SetMarkerStyle(4);
-		g1->SetTitle("fitting procedure systematics correction by M.C. (w/ rot-d elas. cut eff.)");
-		c1->cd();
-		g1->Draw("ap");
-		g1->GetXaxis()->SetRangeUser(0,max_angle);	
-		g1->SetMarkerStyle(21);
-		g1->SetMarkerColor(kBlue);
-		g1->SetMarkerSize(1);
-		c1->SaveAs(outfilename+".pdf");
-	}	
 	yieldhist->SetMinimum(0);
 	yieldhist->SetMaximum(yieldhist->GetMaximum()*1.05);
 	yieldhist->Draw("e1");

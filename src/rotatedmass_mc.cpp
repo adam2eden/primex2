@@ -61,13 +61,14 @@ int main (int argc, char* argv[]) {
     TFile* outroot = new TFile(outrootname, "RECREATE");
 
 	vector<vector<TH1F*> > haltinvm(uimanager.output_nbins(), vector<TH1F*>(uimanager.get_nsigma(), NULL));
-    vector<TH1F*> haltinvm_mc(uimanager.output_nbins(), NULL), hbkg(uimanager.output_nbins(), NULL), hside(uimanager.output_nbins(), NULL);
+    vector<TH1F*> haltinvm_mc(uimanager.output_nbins(), NULL), haltinvm_mc_org(uimanager.output_nbins(), NULL), hbkg(uimanager.output_nbins(), NULL), hside(uimanager.output_nbins(), NULL);
 	TH1F *hinvm, *helas;
 
     int nbins = mdiv;
 	if (uimanager.get_runs().size() > 10)nbins = 40*nbins;
 	for (int i = 0; i < uimanager.output_nbins(); i++) {
         haltinvm_mc[i] = new TH1F(Form("hrotd_%d", i), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f]", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1]), nbins, -0.2, 0.2);
+        haltinvm_mc_org[i] = new TH1F(Form("hrotd_org_%d", i), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f]", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1]), nbins, 0, 0);
 		for (int j = 0; j < uimanager.get_nsigma(); j++) {
 			haltinvm[i][j] = new TH1F(Form("haltinvm_%d_%.2f", i, uimanager.get_sigma_start() + j*uimanager.get_sigma_step()), Form("rot-d m_{#gamma#gamma} w/ rot-d elas. cut #theta [%3.2f,%3.2f] sigma_adj: %.2f", uimanager.get_output_angles()[i], uimanager.get_output_angles()[i + 1], uimanager.get_sigma_start() + j*uimanager.get_sigma_step()), nbins, -0.2, 0.2);
         }
@@ -205,10 +206,20 @@ int main (int argc, char* argv[]) {
     rotd->Branch("elas", &elas, "elas/F");
     rotd->Branch("status", &status, "status/I");
 
+    vector<int> dndt(uimanager.output_nbins(), 0);
 	cout<<"number of events: "<<nevents<<endl;
 	for(int i=1;i<=nevents;i++){
 		if(i%1000000==0)cout<<i<<endl;
 		event->GetEntry(i);
+        int cc1 = 0;
+        for(int m = 0; m < uimanager.output_nbins(); m++) {
+            if (uimanager.get_output_angles()[m] < MC_angle && MC_angle <= uimanager.get_output_angles()[m + 1]) {
+                cc1 = m;
+                break;
+            }
+        }
+        if (cc1 >= 0 && cc1 < uimanager.output_nbins()) dndt[cc1]++;
+
 		for(int j=0;j<npi0;j++){
 			for(int k=0;k<nph;k++){
                 int match1 = 0, match2 = 0;
@@ -254,10 +265,12 @@ int main (int argc, char* argv[]) {
 					    if (!isouterlayer) {
                             haltinvm[cc][m]->Fill((cinvm*costheta-elas*sintheta)*(uimanager.get_sigma_start()+m*uimanager.get_sigma_step()));
                             if(m == 0) haltinvm_mc[cc]->Fill(cinvm*costheta-elas*sintheta);
+                            if(m == 0) haltinvm_mc_org[cc]->Fill(cinvm*costheta-elas*sintheta);
                         }
                         else if (uimanager.isouter()) {
                             haltinvm[cc][m]->Fill((cinvm*costheta-elas*sintheta)*(uimanager.get_sigma_start()+m*uimanager.get_sigma_step()));
                             if(m == 0) haltinvm_mc[cc]->Fill(cinvm*costheta-elas*sintheta);
+                            if(m == 0) haltinvm_mc_org[cc]->Fill(cinvm*costheta-elas*sintheta);
                         }
 					}
                     rotdm = cinvm*costheta-elas*sintheta;
@@ -289,6 +302,7 @@ int main (int argc, char* argv[]) {
     ratios1.Write("ratios");
 	
 	ofstream output_mc("Npi0_mc.dat");
+	ofstream output_MC("Npi0_MC.dat");
 	for (int i = 0; i< uimanager.output_nbins(); i++) {
         if(!uimanager.ismc()) {
             for (int j = 0; j < uimanager.get_nsigma(); j++) {
@@ -297,9 +311,11 @@ int main (int argc, char* argv[]) {
         }
         else {
             hbkg[i]->Scale(haltinvm_mc[i]->GetEntries()/npi[i]);
-			output_mc << hbkg[i]->GetEntries() << endl;
+			output_mc << haltinvm_mc[i]->GetEntries() << endl;
+			output_MC << dndt[i] << endl;
             haltinvm_mc[i]->Add(hbkg[i], 1);
             haltinvm_mc[i]->Write();
+            haltinvm_mc_org[i]->Write();
             hside[i]->Write();
         }
     }

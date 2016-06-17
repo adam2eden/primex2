@@ -130,6 +130,13 @@ int main(int argc, char* argv[]){
 	diff1->GetXaxis()->SetTitle("percentage");
 	diff2->GetXaxis()->SetTitle("percentage");
 
+    vector<double> MC_corr(uimanager.output_nbins(), 1.);
+    ifstream effcor("effcor.dat");
+    if(effcor.is_open()) {
+        cout << "Use effcor.dat for M.C. correction" << endl;
+        for(int i = 0; i < uimanager.output_nbins(); ++i) effcor >> MC_corr[i];
+    }
+
 	for(int i=0;i<nangle;i++){
 		fitresult->GetEntry(i);
 		angle[i] = angles;
@@ -140,6 +147,7 @@ int main(int argc, char* argv[]){
         } else {
             yield[i] = parameters[0];
             yerror[i] = errors[0];
+            yield[i] /= MC_corr[i];
         }
 		hchi2->Fill(chi2/NDF);
 		//if(yerror[i]>3*sqrt(yield[i]) || yerror[i] < 0.1*sqrt(yield[i]))yerror[i] = 1.25*sqrt(yield[i]);

@@ -110,6 +110,7 @@ int main(int argc, char* argv[]) //input in this program only refers to the inpu
 	fitresult->Branch("Npfits", &Npfits, "Npfits/I");
 
 	ofstream output("offsets" + uimanager.output_filename("fit") + ".dat");
+    ofstream output_npi0("Npi0_fit.dat");
 
 	for (int i = 0; i < uimanager.output_nbins(); i++) {
 		angle = (uimanager.get_output_angles()[i] + uimanager.get_output_angles()[i + 1]) / 2;
@@ -135,7 +136,10 @@ int main(int argc, char* argv[]) //input in this program only refers to the inpu
 		cout << "-------------------------------------------------" << endl;
 
 		fitresult->Fill();
+        streamsize ss = output_npi0.precision();
+        output_npi0 << setprecision(2) << fixed << setw(10) << parameters[0] << setw(10) << errors[0] << setprecision(ss) << resetiosflags(ios::fixed) << endl;
 	}
+    output_npi0.close();
 
 	output.close();
 
