@@ -91,6 +91,7 @@ public:
     void set_poly_bkg(int bkg) { _use_poly_bkg = bkg; }
     void set_sub_omg(int omg) { _sub_omg = omg; }
     void set_fit_range(double xmin, double xmax) { _xmin = xmin; _xmax = xmax; }
+	void set_wo(int wo) { _outer = wo; }
 
 	double get_adcerr() { return _adcerr; }
 	double get_bit_corr() { return _bit_corr; }
