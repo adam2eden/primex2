@@ -28,14 +28,13 @@ int main(int argc, char* argv[]) {
 					exit(1);
 				}
                 else incs >> pi0_cs[nech][angle][proc];
-                cout << nech << " " << angle << " " << proc << pi0_cs[nech][angle][proc] << endl;
 			}
 		}	
 	}
 
-    TString fname0(Form("tmt0_lelas%.2f.dat", uimanger.get_lelas_cut()));
+    TString fname0(Form("tmt0_lelas%.2f.dat", uimanager.get_lelas_cut()));
 	ifstream tmt0(workdir + "tables/"+fname0);
-    TString fname1(Form("tmt1_lelas%.2f.dat", uimanger.get_lelas_cut()));
+    TString fname1(Form("tmt1_lelas%.2f.dat", uimanager.get_lelas_cut()));
 	ifstream tmt1(workdir + "tables/"+fname1);
 	if (!tmt1.is_open() || !tmt0.is_open()) {
 		cerr << "efficieny file doesn't exist" << endl;
@@ -68,23 +67,25 @@ int main(int argc, char* argv[]) {
     }
 
 	TString outputname0 = workdir + "/tables/dfp0", outputname1 = workdir + "/tables/dfp1", trail = "";
-    if (silicon) trail = "_si.dat";
+    if (uimanager.target() == 0) trail = "_si.dat";
     else trail = "_c12.dat";
 	
-	uimanager.setwo(0);
+	uimanager.set_wo(0);
     ofstream output0(outputname0 + uimanager.input_filename("mc") + trail);
-	uimanager.setwo(1);
+	uimanager.set_wo(1);
 	ofstream output1(outputname1 + uimanager.input_filename("mc") + trail);
 	output0 << setprecision(5) << fixed << scientific;
 	output1 << setprecision(5) << fixed << scientific;
 	for (int i = 1; i <= 180; i++) {
-		for (int j = 1; j <= nrec1; j++) {
+		for (int j = 1; j <= 125; j++) {
 			for (int k = 1; k <= 5; k++) {
 				output0 << setw(3) << i << setw(5) << j << setw(2) << k << setw(13) << efftable0[i][j][k] << endl;
 				output1 << setw(3) << i << setw(5) << j << setw(2) << k << setw(13) << efftable1[i][j][k] << endl;
 			}
 		}
 	}
+    output0.close();
+    output1.close();
 
 	return 0;
 }
