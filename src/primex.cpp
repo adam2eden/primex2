@@ -206,13 +206,17 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
 		}
         else if (input_option(argv[iarg], "-r")) {
 			iarg++;
-			if (argc - iarg < 1) exit(input_err());
+			if (argc - iarg < 3) exit(input_err());
 			if (!isposint(string(argv[iarg]))) exit(input_err());
 			_num_runs = atoi(argv[iarg++]);
-			if (argc - iarg < _num_runs) exit(input_err());
-			for (int i = 0; i < _num_runs; i++) {
-				_run.push_back(atoi(argv[iarg]));
-				_flux += _flux_map[target()][atoi(argv[iarg++])]*1.e9;
+            int total = atoi(argv[iarg++]); 
+			if (argc - iarg < total || _num_runs > total) exit(input_err());
+			for (int i = 0; i < total; i++) {
+                if(i < _num_runs) {
+                    _run.push_back(atoi(argv[iarg]));
+                    _flux += _flux_map[target()][atoi(argv[iarg])]*1.e9;
+                }
+                iarg++;
 			}
 		}
 		else if (input_option(argv[iarg], "-t")) {

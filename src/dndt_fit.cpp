@@ -126,22 +126,22 @@ int main(int argc, char* argv[]){
 
 	TF1 *ftot = new TF1("ftot", dndt, 0., dndt_fit_range, 4);
 	ftot->SetParNames("#Gamma","C1","#phi","C2");
-/*
+
 	ftot->SetParameter(0,parameter[0]);
 	ftot->SetParameter(1,parameter[1]);
 	ftot->SetParameter(2,parameter[2]);
 	ftot->SetParameter(3,parameter[3]);
-    */
+/*
 	ftot->FixParameter(0,parameter[0]);
 	ftot->FixParameter(1,parameter[1]);
 	ftot->FixParameter(2,parameter[2]);
 	ftot->FixParameter(3,parameter[3]);
-/*
+*/
     ftot->SetParLimits(0, 3, 10);
     ftot->SetParLimits(1, 0.3, 1.5);
     ftot->SetParLimits(2, 0, 3.1415936/2);
     ftot->SetParLimits(3, 0., 10.0);
-*/
+
 	yieldhist->Fit("ftot", "RMBE0");
 
 	Double_t chi2 = ftot->GetChisquare()/ftot->GetNDF();

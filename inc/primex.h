@@ -21,6 +21,7 @@
 #include "TGraphErrors.h"
 #include "TGraphErrors.h"
 #include "TH1F.h"
+#include "TH1D.h"
 #include "TH2F.h"
 #include "TKey.h"
 #include "TLegend.h"
