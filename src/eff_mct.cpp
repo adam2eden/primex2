@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
 	event->SetBranchAddress("MC_E1",&MC_E1);
 	event->SetBranchAddress("MC_E2",&MC_E2);
 	
-	int nmc = 640, nrec = 160;
+	int nmc = 540, nrec = 135;
 	for (int i = 0; i < int(uimanager.get_runs().size()); i++) event->Add(Form("./mc/ge%d.cout.root", uimanager.get_runs()[i]));
     vector<vector<int>> eff_ech_mct(180, vector<int>(nmc, 0));
     vector<vector<int>> ech_mct(180, vector<int>(nmc, 0));
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]){
 		if(i%1000000==0)cout<<i<<endl;
 		event->GetEntry(i);
         pass = 0;
-        if(MC_angle >= 3.2) continue;
+        if(MC_angle >= 2.7) continue;
 		for(int j=0;j<npi0;j++){
 			for(int k=0;k<nph;k++){
                 int match1 = 0, match2 = 0;
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]){
 				icol2 = (id2[j]-1001)%34+1;
 				if(icol2>=16 && icol2<=19 && irow2>=16 && irow2<=19) continue;
 				int isouterlayer = (icol1 == 1) || (icol1 == 34) || (irow1 == 1) || (irow1 == 34) || (icol2 == 1) || (icol2 == 34) || (irow2 == 1) || (irow2 == 34);
-                if(angle[j] < 0 || angle[j] > 3.2) continue;
+                if(angle[j] < 0 || angle[j] >= 2.7) continue;
                 theta_rec[pass] = angle[j];
                 ++pass;
 			}
@@ -111,10 +111,21 @@ int main(int argc, char* argv[]){
 	}
 	ev->Write();
 	outroot.Close();
-	
+
+    ofstream output("Nmc_Nacc.dat", ios::out); 
+    for(int i = 1; i <= 180; ++i)
+    {
+        for(int j = 1; j <= nmc; ++j)
+        {
+            output << setw(3) << i << setw(4) << j << setw(10) << ech_mct[i - 1][j - 1] << setw(10) << eff_ech_mct[i - 1][j - 1] << endl;
+        }
+    }
+    output.close();
+/*	
     TFile outroot1("eff_mct_hist.root", "RECREATE");
-    TH1D heff_mct("eff_mct", "eff_mct", nmc, 0, 3.2);
-	TH1D heff_mct1("eff_mct1", "eff_mct normalized by echn dist.", nmc, 0, 3.2);
+    TH1D heff_mct("eff_mct", "eff_mct", nmc, 0, 2.7);
+	TH1D heff_mct1("eff_mct1", "eff_mct normalized by echn dist.", nmc, 0, 2.7);
+	TH1D heff_mct2("eff_mct2", "eff_mct2", nmc, 0, 2.7);
     for(int i = 1; i <= nmc; ++i)
     {
 		if(mct_total[i - 1] == 0) cout << "zero denominator for M.C. angle: " << i << endl;
@@ -124,21 +135,30 @@ int main(int argc, char* argv[]){
 			heff_mct.SetBinError(i, sqrt(mct_total[i - 1])/mct_total[i - 1]*eff_mct[i - 1]*1./mct_total[i - 1]);
 			mct_total[i - 1] = 0;
 			eff_mct[i - 1] = 0;
+            double eps = 0;
+            int nech = 0;
 			for(int j = 0; j < 180; ++j)
 			{
 				double scale = eid_dist[j];
 				mct_total[i - 1] += ech_mct[j][i - 1] * scale;
 				eff_mct[i - 1] += eff_ech_mct[j][i - 1] * scale;
+                if(ech_mct[j][i - 1] != 0)
+                {
+                    eps += eff_ech_mct[j][i - 1]*1./ech_mct[j][i - 1];
+                    nech++;
+                }
 			}
-			if(mct_total[i - 1] == 0) cout << "zero denominator for M.C. angle: " << i << endl;
+            eps /= nech;
 			heff_mct1.SetBinContent(i, eff_mct[i - 1]/mct_total[i - 1]);
 			heff_mct1.SetBinError(i, sqrt(mct_total[i - 1])/mct_total[i - 1]*eff_mct[i - 1]*1./mct_total[i - 1]);
+            heff_mct2.SetBinContent(i, eps);
 		}
     }
 
 	heff_mct.Write();
 	heff_mct1.Write(); 
+	heff_mct2.Write(); 
     outroot1.Close();
-	
+*/	
 	return 0;
 }
