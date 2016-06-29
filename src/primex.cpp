@@ -52,6 +52,8 @@ _subacc(true), _best_tdiff(true), _use_Npi0(false), prog(prog)
     _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-elas" ), true) );
     _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-invm" ), true) );
     _input_option_list.insert( make_pair( make_pair("rotatedmass_mc",           "-lelas"), true) );
+	
+    _input_option_list.insert( make_pair( make_pair("eff_mct",                  "-r"    ), true) );
 
     _input_option_list.insert( make_pair( make_pair("efftable",                 "-f"    ), true) );
     _input_option_list.insert( make_pair( make_pair("efftable",                 "-r"    ), true) );

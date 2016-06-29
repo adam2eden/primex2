@@ -1,9 +1,8 @@
 #include "primex.h"
 
 int main (int argc, char* argv[]) {
-	UImanager uimanager(argc, argv, "rotatedmass_mc");
-
-	gStyle->SetOptStat(0);
+	UImanager uimanager(argc, argv, "eff_mct");
+	TString workdir(getenv("WORKDIR"));
 
 	const int kMax = 100;
 

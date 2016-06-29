@@ -10,12 +10,6 @@ int main(int argc, char *argv[]){
 
 	int echn = atoi(argv[1]);
 	int ifile = atoi(argv[2]);
-    /*float alpha = 0, beta = 0;
-    if(argc == 5) {
-        alpha = atof(argv[3]);
-        beta = atof(argv[4]);
-    }
-*/
 	const int kMax = 100;
 	int runnumber, eventid, nph, tid[kMax], eid[kMax], npi0, type1[kMax], type2[kMax], id1[kMax], id2[kMax];
 	float Etot_cl, Etot, phE[kMax], hx1[kMax], hy1[kMax], hx2[kMax], hy2[kMax], E1[kMax], E2[kMax], invm[kMax], \
