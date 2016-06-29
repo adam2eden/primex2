@@ -100,11 +100,11 @@ int main(int argc, char* argv[]){
 			}
 		}
         int cc = int(MC_angle/0.005);
-        //mct_total[cc]++;
+        mct_total[cc]++;
         ech_mct[eid[0] - 1][cc]++;
         if(pass > 0)
         {
-            //eff_mct[cc]++;
+            eff_mct[cc]++;
             eff_ech_mct[eid[0] - 1][cc]++;
         }
         ev->Fill();
@@ -122,6 +122,8 @@ int main(int argc, char* argv[]){
 		{
 			heff_mct.SetBinContent(i, eff_mct[i - 1]/mct_total[i - 1]);
 			heff_mct.SetBinError(i, sqrt(mct_total[i - 1])/mct_total[i - 1]*eff_mct[i - 1]*1./mct_total[i - 1]);
+			mct_total[i - 1] = 0;
+			eff_mct[i - 1] = 0;
 			for(int j = 0; j < 180; ++j)
 			{
 				double scale = eid_dist[j];
